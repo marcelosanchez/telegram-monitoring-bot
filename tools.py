@@ -42,7 +42,8 @@ def record_a_video():
 	width = 864
 	height = 640
 	video_codec = cv2.VideoWriter_fourcc("D", "I", "V", "X")
-	name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
+	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
+	name = time.strftime("evento")
 	path = "videos/"
 
 	cap = cv2.VideoCapture(cam_video_url)
