@@ -37,6 +37,7 @@ def take_a_picture():
 
 
 def record_a_video():
+	print("Recording a 10seconds video..")
 	# Video settings
 	fps = 30
 	width = 864
@@ -68,7 +69,6 @@ def record_a_video():
 			if time.time() - start > 10:
 				if video_file_count < 1:
 					start = time.time()
-					video_file = os.path.join(name, str(video_file_count) + ".avi")
 					video_writer = cv2.VideoWriter(
 						video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
 					)
