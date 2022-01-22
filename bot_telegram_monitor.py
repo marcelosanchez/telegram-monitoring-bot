@@ -20,7 +20,7 @@ from telegram import Update, ForceReply, ChatAction
 from telegram.ext import Updater, CommandHandler, RegexHandler, MessageHandler, Filters, CallbackContext
 from dotenv import load_dotenv
 
-from tools import guardar_captura_camara
+from tools import *
 
 load_dotenv()
 
@@ -34,31 +34,54 @@ logger = logging.getLogger(__name__)
 
 # TOKEN=open('token',"r").read()
 TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
-path    = "images/event.jpg"
+path_img    = "images/event.jpg"
+path_video    = "videos/event.avi"
 img_str = None
+video_str = None
 
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def read_img():
     # ret, frame = cap.read()
-    if os.path.isfile(path):
-        img_str = open(path, "rb")
+    if os.path.isfile(path_img):
+        img_str = open(path_img, "rb")
     else:
         return ""
     return img_str
 
 
-def evento_img(context):
-    chat_id=context.job.context
-    binario=""
-    binario=read_img()
-    if binario=="":
-        print("Ningun evento.")
+def read_video():
+    # ret, frame = cap.read()
+    if os.path.isfile(path_video):
+        video_str = open(path_video, "rb")
     else:
-        context.bot.send_photo(chat_id,photo=binario)
+        return ""
+    return video_str
+
+
+def evento_img(context):
+    chat_id = context.job.context
+    binario = ""
+    binario = read_img()
+    if binario == "":
+        print("No events.")
+    else:
+        context.bot.send_photo(chat_id, photo=binario)
         binario.close()
-        os.remove(path)
+        os.remove(path_img)
+
+
+def evento_vid(context):
+    chat_id = context.job.context
+    binario = ""
+    binario = read_video()
+    if binario == "":
+        print("No events.")
+    else:
+        context.bot.send_video(chat_id, video=binario)
+        binario.close()
+        os.remove(path_video)
     
 
 def shutdown():
@@ -68,8 +91,10 @@ def shutdown():
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    tiempo_intevalo = 3
-    context.job_queue.run_repeating(evento_img,interval=tiempo_intevalo,first=1,context=update.message.chat_id)
+    tiempo_intevalo_img = 3
+    tiempo_intevalo_vid = 15
+    context.job_queue.run_repeating(evento_img, interval=tiempo_intevalo_img, first=1, context=update.message.chat_id)
+    context.job_queue.run_repeating(evento_vid, interval=tiempo_intevalo_vid, first=1, context=update.message.chat_id)
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Hola, {user.mention_markdown_v2()}\!',
@@ -77,8 +102,11 @@ def start(update: Update, context: CallbackContext) -> None:
 
 
 def capture(update: Update, context: CallbackContext) -> None:
-    # guardar_captura()
-    guardar_captura_camara()
+    take_a_picture()
+
+
+def record(update: Update, context: CallbackContext) -> None:
+    record_a_video()
 
 
 def finish(update: Update, context: CallbackContext) -> None:
@@ -103,6 +131,7 @@ def help_command(update: Update, context: CallbackContext) -> None:
     bot_msg = "Comandos disponibles:\n" \
               "- /start\n" \
               "- /capture\n" \
+              "- /record\n" \
               "- /finish\n" \
               "- /help\n"
     # Respondemos al mensaje recibido (aqui no hace falta determinar cual es el ID del chat, ya que 
@@ -126,6 +155,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("capture", capture))
+    dispatcher.add_handler(CommandHandler("record", record))
     dispatcher.add_handler(CommandHandler("finish", finish))
     dispatcher.add_handler(CommandHandler("help", help_command))
 

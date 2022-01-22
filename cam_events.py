@@ -2,9 +2,8 @@ import cv2
 import numpy as np
 from collections import deque
 import os
-from dotenv import load_dotenv
-
 from tools import guardar_imagen_evento
+from dotenv import load_dotenv
 
 load_dotenv()
 

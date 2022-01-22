@@ -1,6 +1,7 @@
 import os
-
+import sys
 import cv2
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,7 +15,7 @@ def guardar_imagen_evento(cv2, frame):
 		cv2.imwrite("images/event.jpg", frame)
 
 
-def guardar_captura_camara():
+def take_a_picture():
 	cap = cv2.VideoCapture(cam_video_url)  # 1
 	i = 0
 	while cap.isOpened():
@@ -33,3 +34,54 @@ def guardar_captura_camara():
 			break
 
 	cap.release()
+
+
+def record_a_video():
+	# Video settings
+	fps = 30
+	width = 864
+	height = 640
+	video_codec = cv2.VideoWriter_fourcc("D", "I", "V", "X")
+	name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
+	path = "videos/"
+
+	cap = cv2.VideoCapture(cam_video_url)
+	ret = cap.set(3, 864)
+	ret = cap.set(4, 480)
+	cur_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+	start = time.time()
+	video_file_count = 0
+	video_file = path + name + ".avi"
+	print("Capture video saved location : {}".format(video_file))
+
+	# Create a video write before entering the loop
+	video_writer = cv2.VideoWriter(
+		video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
+	)
+
+	while cap.isOpened():
+		ret, frame = cap.read()
+		if ret is True:
+			# cv2.imshow("frame", frame)  # Muestra la captura
+			if time.time() - start > 10:
+				if video_file_count < 1:
+					start = time.time()
+					video_file = os.path.join(name, str(video_file_count) + ".avi")
+					video_writer = cv2.VideoWriter(
+						video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
+					)
+					video_file_count += 1
+				# No sleeping! We don't want to sleep, we want to write
+				# time.sleep(10)
+				else:
+					break  # End process
+
+			# Write the frame to the current video writer
+			video_writer.write(frame)
+			if cv2.waitKey(1) & 0xFF == ord("q"):
+				break
+		else:
+			break
+	cap.release()
+
