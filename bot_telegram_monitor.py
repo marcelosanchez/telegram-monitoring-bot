@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 # TOKEN=open('token',"r").read()
 TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
 path_img    = "images/event.jpg"
-path_video    = "videos/event.avi"
+path_video    = "videos/event.mp4"
 img_str = None
 video_str = None
 
