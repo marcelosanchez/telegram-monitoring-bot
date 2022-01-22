@@ -44,17 +44,14 @@ def record_a_video():
 	height = 640
 	video_codec = cv2.VideoWriter_fourcc("D", "I", "V", "X")
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
-	name = time.strftime("evento")
-	path = "videos/"
+	video_file = "videos/event.mp4"
 
 	cap = cv2.VideoCapture(cam_video_url)
 	ret = cap.set(3, 864)
 	ret = cap.set(4, 480)
-	cur_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 	start = time.time()
 	video_file_count = 0
-	video_file = path + name + ".avi"
 	print("Capture video saved location : {}".format(video_file))
 
 	# Create a video write before entering the loop
