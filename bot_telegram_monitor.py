@@ -79,7 +79,7 @@ def evento_vid(context):
     if binario == "":
         print("No events.")
     else:
-        context.bot.send_video(chat_id, video=binario)
+        context.bot.send_video(chat_id, video=binario, duration=10, supports_streaming=True, timeout=10000)
         binario.close()
         os.remove(path_video)
     
