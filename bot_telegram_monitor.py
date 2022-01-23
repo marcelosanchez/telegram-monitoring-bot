@@ -71,10 +71,10 @@ def evento_img(context):
     if binario == "":
         print("No events.")
     else:
-        if required_time_is_completed(path_video, IMG_WAIT_TIME):
-            context.bot.send_photo(chat_id, photo=binario)
-            binario.close()
-            os.remove(path_img)
+        # if required_time_is_completed(path_video, IMG_WAIT_TIME):
+        context.bot.send_photo(chat_id, photo=binario)
+        binario.close()
+        os.remove(path_img)
 
 
 def evento_vid(context):
