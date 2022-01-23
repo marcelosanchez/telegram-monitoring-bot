@@ -100,7 +100,7 @@ def is_damaged(image):
 
 
 def required_time_is_completed(path_to_file, diff_seconds):
-	if path_to_file.exists():
+	if os.path.exists(path_to_file):
 		last_modification_time = os.path.getmtime(path_to_file)
 		last = datetime.fromtimestamp(last_modification_time)
 		now = datetime.now()
