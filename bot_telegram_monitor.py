@@ -38,8 +38,8 @@ img_str       = None
 video_str     = None
 path_img      = "images/event.jpg"
 path_video    = "videos/event.mp4"
-IMG_WAIT_TIME = 2
-VID_WAIT_TIME = 3
+IMG_WAIT_TIME = 3
+VID_WAIT_TIME = 10
 RECORD_TIME   = 20
 
 
