@@ -18,10 +18,10 @@ def guardar_imagen_evento(cv2, frame):
 
 
 def take_a_picture():
-	cap = cv2.VideoCapture(cam_video_url)  # 1
+	icap = cv2.VideoCapture(cam_video_url)  # 1
 	i = 0
-	while cap.isOpened():
-		ret, frame = cap.read()
+	while icap.isOpened():
+		ret, frame = icap.read()
 
 		# This condition prevents from infinite looping
 		# incase video ends.
@@ -35,7 +35,7 @@ def take_a_picture():
 		if i >= 1:
 			break
 
-	cap.release()
+	icap.release()
 
 
 def record_a_video(record_time_sec):
@@ -48,42 +48,30 @@ def record_a_video(record_time_sec):
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
 
-	cap = cv2.VideoCapture(cam_video_url)
-	ret = cap.set(3, width)
-	ret = cap.set(4, height)
+	vcap = cv2.VideoCapture(cam_video_url)
+	retw = vcap.set(3, width)
+	reth = vcap.set(4, height)
 
-	start = time.time()
-	video_file_count = 0
-	print("Capture video saved location : {}".format(video_file))
+	print("Captured video saved on: {}".format(video_file))
 
 	# Create a video write before entering the loop
-	video_writer = cv2.VideoWriter(
-		video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
+	video_writer_out = cv2.VideoWriter(
+		video_file, video_codec, fps, (int(vcap.get(3)), int(vcap.get(4)))
 	)
 
-	while cap.isOpened():
-		ret, frame = cap.read()
+	start_time = time.time()
+	while int(time.time() - start_time) <= int(record_time_sec - 1):
+		# print(time.time() - start_time)
+		ret, frame = vcap.read()
 		if ret is True:
-			# cv2.imshow("frame", frame)  # Muestra la captura
-			if time.time() - start > record_time_sec:
-				if video_file_count < 1:
-					start = time.time()
-					video_writer = cv2.VideoWriter(
-						video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
-					)
-					video_file_count += 1
-				# No sleeping! We don't want to sleep, we want to write
-				# time.sleep(record_time_sec)
-				else:
-					break  # End process
-
-			# Write the frame to the current video writer
-			video_writer.write(frame)
+			# frame = cv2.flip(frame, 0)
+			video_writer_out.write(frame)
 			if cv2.waitKey(1) & 0xFF == ord("q"):
 				break
 		else:
 			break
-	cap.release()
+	vcap.release()
+	video_writer_out.release()
 
 
 def is_damaged(image):
