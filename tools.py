@@ -65,17 +65,17 @@ def record_a_video(record_time_sec):
 		ret, frame = cap.read()
 		if ret is True:
 			# cv2.imshow("frame", frame)  # Muestra la captura
+			print("video of " + str(record_time_sec) + " seconds!")
 			if time.time() - start > record_time_sec:
-				if video_file_count < 1:
-					start = time.time()
-					video_writer = cv2.VideoWriter(
-						video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
-					)
-					video_file_count += 1
+				start = time.time()
+				video_writer = cv2.VideoWriter(
+					video_file, video_codec, fps, (int(cap.get(3)), int(cap.get(4)))
+				)
+				print("Interval : " + str(time.time() - start))
 				# No sleeping! We don't want to sleep, we want to write
 				# time.sleep(record_time_sec)
-				else:
-					break  # End process
+			else:
+				pass  # End process
 
 			# Write the frame to the current video writer
 			video_writer.write(frame)
