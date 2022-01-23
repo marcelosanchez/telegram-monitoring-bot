@@ -114,7 +114,7 @@ def capture(update: Update, context: CallbackContext) -> None:
 
 def record(update: Update, context: CallbackContext) -> None:
     try:
-        _thread.start_new_thread(record_a_video, (RECORD_TIME))
+        _thread.start_new_thread(record_a_video, (RECORD_TIME, ))
     except Exception as e:
         print('An error occurred when the video was being recorded!: ' + str(e))
         pass
