@@ -15,7 +15,7 @@ import os
 import signal
 import logging
 import time
-import _thread
+import threading
 
 from telegram import Update, ForceReply, ChatAction
 from telegram.ext import Updater, CommandHandler, RegexHandler, MessageHandler, Filters, CallbackContext
@@ -114,7 +114,8 @@ def capture(update: Update, context: CallbackContext) -> None:
 
 def record(update: Update, context: CallbackContext) -> None:
     try:
-        _thread.start_new_thread(record_a_video, (RECORD_TIME, ))
+        record_thread = threading.Thread(target=record_a_video, args=(RECORD_TIME,))
+        record_thread.start()
     except Exception as e:
         print('An error occurred when the video was being recorded!: ' + str(e))
         pass
