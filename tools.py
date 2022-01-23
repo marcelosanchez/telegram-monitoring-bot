@@ -44,7 +44,7 @@ def record_a_video(record_time_sec):
 	fps = 30
 	width = 1280
 	height = 720
-	video_codec = cv2.VideoWriter_fourcc("D", "I", "V", "X")
+	video_codec = cv2.VideoWriter_fourcc(*'mp4v')
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
 
