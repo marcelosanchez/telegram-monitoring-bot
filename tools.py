@@ -100,12 +100,14 @@ def is_damaged(image):
 
 
 def required_time_is_completed(path_to_file, diff_seconds):
-	last_modification_time = os.path.getmtime(path_to_file)
-	last = datetime.fromtimestamp(last_modification_time)
-	now = datetime.now()
-	difference = (now - last)
-	total_seconds = difference.total_seconds()
+	if path_to_file.exists():
+		last_modification_time = os.path.getmtime(path_to_file)
+		last = datetime.fromtimestamp(last_modification_time)
+		now = datetime.now()
+		difference = (now - last)
+		total_seconds = difference.total_seconds()
 
-	if total_seconds < diff_seconds:
-		return False
-	return True
+		if total_seconds < diff_seconds:
+			return False
+		return True
+	return False
