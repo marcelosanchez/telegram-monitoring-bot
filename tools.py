@@ -1,7 +1,9 @@
 import os
-import sys
 import cv2
 import time
+from datetime import datetime
+
+import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -83,3 +85,27 @@ def record_a_video():
 			break
 	cap.release()
 
+
+def is_damaged(image):
+	# Calculate standard deviation along y axis; average over all color channels
+	stddev = np.mean(np.std(image, axis=0), axis=1)
+
+	# DEBUG
+	print('Check Image:', np.mean(stddev))
+
+	if np.mean(stddev) < 30:
+		return True
+
+	return False
+
+
+def required_time_is_completed(path_to_file, diff_seconds):
+	last_modification_time = os.path.getmtime(path_to_file)
+	last = datetime.fromtimestamp(last_modification_time)
+	now = datetime.now()
+	difference = (now - last)
+	total_seconds = difference.total_seconds()
+
+	if total_seconds < diff_seconds:
+		return False
+	return True

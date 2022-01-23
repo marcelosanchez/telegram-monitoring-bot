@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
 path_img    = "images/event.jpg"
 path_video    = "videos/event.mp4"
+WAIT_TIME_IMG = 3
+WAIT_TIME_VID = 30
 img_str = None
 video_str = None
 
@@ -73,15 +75,19 @@ def evento_img(context):
 
 
 def evento_vid(context):
+    print("Video event -----------------")
     chat_id = context.job.context
     binario = ""
     binario = read_video()
     if binario == "":
         print("No events.")
     else:
-        context.bot.send_video(chat_id, video=binario, duration=10, supports_streaming=True, timeout=10000)
-        binario.close()
-        os.remove(path_video)
+        print("Have a video here!")
+        if required_time_is_completed(path_video, WAIT_TIME_VID):
+            print("Its time to send the video")
+            context.bot.send_video(chat_id, video=binario, duration=10, supports_streaming=True, timeout=10000)
+            binario.close()
+            os.remove(path_video)
     
 
 def shutdown():
@@ -91,10 +97,9 @@ def shutdown():
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    tiempo_intevalo_img = 3
-    tiempo_intevalo_vid = 60
-    context.job_queue.run_repeating(evento_img, interval=tiempo_intevalo_img, first=1, context=update.message.chat_id)
-    context.job_queue.run_repeating(evento_vid, interval=tiempo_intevalo_vid, first=1, context=update.message.chat_id)
+
+    context.job_queue.run_repeating(evento_img, interval=WAIT_TIME_IMG, first=1, context=update.message.chat_id)
+    context.job_queue.run_repeating(evento_vid, interval=WAIT_TIME_VID, first=1, context=update.message.chat_id)
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Hola, {user.mention_markdown_v2()}\!',
