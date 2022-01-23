@@ -34,12 +34,13 @@ logger = logging.getLogger(__name__)
 
 # TOKEN=open('token',"r").read()
 TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
-path_img    = "images/event.jpg"
+img_str       = None
+video_str     = None
+path_img      = "images/event.jpg"
 path_video    = "videos/event.mp4"
-WAIT_TIME_IMG = 3
-WAIT_TIME_VID = 30
-img_str = None
-video_str = None
+IMG_WAIT_TIME = 2
+VID_WAIT_TIME = 3
+RECORD_TIME   = 20
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -69,13 +70,14 @@ def evento_img(context):
     if binario == "":
         print("No events.")
     else:
-        context.bot.send_photo(chat_id, photo=binario)
-        binario.close()
-        os.remove(path_img)
+        if required_time_is_completed(path_video, IMG_WAIT_TIME):
+            context.bot.send_photo(chat_id, photo=binario)
+            binario.close()
+            os.remove(path_img)
 
 
 def evento_vid(context):
-    print("Video event -----------------")
+    print("Video event..")
     chat_id = context.job.context
     binario = ""
     binario = read_video()
@@ -83,9 +85,9 @@ def evento_vid(context):
         print("No events.")
     else:
         print("Have a video here!")
-        if required_time_is_completed(path_video, WAIT_TIME_VID):
-            print("Its time to send the video")
-            context.bot.send_video(chat_id, video=binario, duration=10, supports_streaming=True, timeout=10000)
+        if required_time_is_completed(path_video, VID_WAIT_TIME):
+            print("Its time to send the video!")
+            context.bot.send_video(chat_id, video=binario, duration=RECORD_TIME, supports_streaming=True, timeout=10000)
             binario.close()
             os.remove(path_video)
     
@@ -97,9 +99,8 @@ def shutdown():
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-
-    context.job_queue.run_repeating(evento_img, interval=WAIT_TIME_IMG, first=1, context=update.message.chat_id)
-    context.job_queue.run_repeating(evento_vid, interval=WAIT_TIME_VID, first=1, context=update.message.chat_id)
+    context.job_queue.run_repeating(evento_img, interval=IMG_WAIT_TIME, first=1, context=update.message.chat_id)
+    context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Hola, {user.mention_markdown_v2()}\!',
@@ -111,7 +112,7 @@ def capture(update: Update, context: CallbackContext) -> None:
 
 
 def record(update: Update, context: CallbackContext) -> None:
-    record_a_video()
+    record_a_video(RECORD_TIME)
 
 
 def finish(update: Update, context: CallbackContext) -> None:

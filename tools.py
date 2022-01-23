@@ -38,19 +38,19 @@ def take_a_picture():
 	cap.release()
 
 
-def record_a_video():
-	print("Recording a 10seconds video..")
+def record_a_video(record_time_sec):
+	print("Recording a " + str(record_time_sec) + " seconds video..")
 	# Video settings
 	fps = 30
-	width = 864
-	height = 640
+	width = 1280
+	height = 720
 	video_codec = cv2.VideoWriter_fourcc("D", "I", "V", "X")
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
 
 	cap = cv2.VideoCapture(cam_video_url)
-	ret = cap.set(3, 864)
-	ret = cap.set(4, 480)
+	ret = cap.set(3, width)
+	ret = cap.set(4, height)
 
 	start = time.time()
 	video_file_count = 0
@@ -65,7 +65,7 @@ def record_a_video():
 		ret, frame = cap.read()
 		if ret is True:
 			# cv2.imshow("frame", frame)  # Muestra la captura
-			if time.time() - start > 10:
+			if time.time() - start > record_time_sec:
 				if video_file_count < 1:
 					start = time.time()
 					video_writer = cv2.VideoWriter(
