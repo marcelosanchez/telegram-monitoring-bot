@@ -90,7 +90,7 @@ def evento_vid(context):
             print("Its time to send the video!")
             context.bot.send_video(chat_id, video=binario, supports_streaming=True)
             binario.close()
-            os.remove(path_video)
+            # os.remove(path_video)
     
 
 def shutdown():
