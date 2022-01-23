@@ -92,7 +92,7 @@ def shutdown():
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     tiempo_intevalo_img = 3
-    tiempo_intevalo_vid = 30
+    tiempo_intevalo_vid = 60
     context.job_queue.run_repeating(evento_img, interval=tiempo_intevalo_img, first=1, context=update.message.chat_id)
     context.job_queue.run_repeating(evento_vid, interval=tiempo_intevalo_vid, first=1, context=update.message.chat_id)
     user = update.effective_user
