@@ -87,7 +87,7 @@ def evento_vid(context):
         print("Have a video here!")
         if required_time_is_completed(path_video, VID_WAIT_TIME):
             print("Its time to send the video!")
-            context.bot.send_video(chat_id, video=binario, duration=RECORD_TIME, supports_streaming=True, timeout=10000)
+            context.bot.send_video(chat_id, video=binario, supports_streaming=True)
             binario.close()
             os.remove(path_video)
     

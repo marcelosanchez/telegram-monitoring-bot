@@ -73,7 +73,7 @@ def record_a_video(record_time_sec):
 					)
 					video_file_count += 1
 				# No sleeping! We don't want to sleep, we want to write
-				# time.sleep(10)
+				# time.sleep(record_time_sec)
 				else:
 					break  # End process
 
