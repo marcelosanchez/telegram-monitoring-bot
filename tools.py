@@ -124,3 +124,9 @@ def video_duration(path_to_video):
 	seconds = int(frames / fps)
 	video_time = str(datetime.timedelta(seconds=seconds))
 	print("Video duration:", video_time)
+
+
+def get_file_size_in_mb(path_to_file):
+	size = os.path.getsize(path_to_file)
+	size_in_mb = size / (1024 * 1024)
+	return size_in_mb

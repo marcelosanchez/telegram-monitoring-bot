@@ -71,6 +71,7 @@ def evento_img(context):
         print("No events.")
     else:
         # if required_time_is_completed(path_video, IMG_WAIT_TIME):
+        context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
         context.bot.send_photo(chat_id, photo=binario)
         binario.close()
         os.remove(path_img)
@@ -89,7 +90,15 @@ def evento_vid(context):
         if required_time_is_completed(path_video, VID_WAIT_TIME):
             video_duration(path_video)
             print("Its time to send the video!")
-            context.bot.send_video(chat_id, video=binario, supports_streaming=True)
+            video_size = get_file_size_in_mb(path_video)
+            print("Size: " + str(video_size))
+            if video_size >= 20:
+                # context.bot.send_document(chat_id, document=binario)
+                context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
+                context.bot.send_message(chat_id, text="The video is too long, I can't send it, sorry 🙁")
+            else:
+                context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_VIDEO, timeout=RECORD_TIME)
+                context.bot.send_video(chat_id, video=binario, supports_streaming=True)
             binario.close()
             os.remove(path_video)
     
@@ -104,14 +113,16 @@ def start(update: Update, context: CallbackContext) -> None:
     context.job_queue.run_repeating(evento_img, interval=IMG_WAIT_TIME, first=1, context=update.message.chat_id)
     context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
+    context.bot.send_chat_action(update.message.chat_id, action=ChatAction.TYPING, timeout=3)
     update.message.reply_markdown_v2(
         fr'Hola, {user.mention_markdown_v2()}\!',
     )
 
 
 def capture(update: Update, context: CallbackContext) -> None:
+    context.bot.send_chat_action(update.message.chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
     try:
-        record_thread = threading.Thread(target=take_a_picture, args=(None, ))
+        record_thread = threading.Thread(target=take_a_picture)
         record_thread.start()
     except Exception as e:
         print('An error occurred when the picture was being taken!: ' + str(e))
@@ -119,6 +130,7 @@ def capture(update: Update, context: CallbackContext) -> None:
 
 
 def record(update: Update, context: CallbackContext) -> None:
+    context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.RECORD_VIDEO, timeout=RECORD_TIME)
     try:
         record_thread = threading.Thread(target=record_a_video, args=(RECORD_TIME,))
         record_thread.start()
@@ -139,13 +151,14 @@ def pause(update: Update, context: CallbackContext) -> None:
     if not intervalo:
         intervalo = 10
     update.message.reply_text('Pausa!' + str(intervalo))
-    context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.RECORD_VIDEO, timeout=1)
+    context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING, timeout=1)
     time.sleep(intervalo)
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     # Preparamos el texto que queremos enviar
+    context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING, timeout=3)
     bot_msg = "Comandos disponibles:\n" \
               "- /start\n" \
               "- /capture\n" \
