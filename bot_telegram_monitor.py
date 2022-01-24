@@ -39,8 +39,8 @@ video_str     = None
 path_img      = "images/event.jpg"
 path_video    = "videos/event.mp4"
 IMG_WAIT_TIME = 3
-VID_WAIT_TIME = 10
-RECORD_TIME   = 10
+VID_WAIT_TIME = 5
+RECORD_TIME   = 60
 
 
 # Define a few command handlers. These usually take the two arguments update and
