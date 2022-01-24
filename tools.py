@@ -41,16 +41,18 @@ def take_a_picture():
 def record_a_video(record_time_sec):
 	print("Recording a " + str(record_time_sec) + " seconds video..")
 	# Video settings
-	fps = 30
-	width = 1280
-	height = 720
+	fps = 30.0
+	width = 640  # 1280
+	height = 360  # 720
 	video_codec = cv2.VideoWriter_fourcc(*'mp4v')
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
-
+	cv2.waitKey(int(1000 / fps - 1))
 	vcap = cv2.VideoCapture(cam_video_url)
-	retw = vcap.set(3, width)
-	reth = vcap.set(4, height)
+	vcap.set(cv2.CAP_PROP_FPS, fps)
+	vcap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+	vcap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+	vcap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 	print("Captured video saved on: {}".format(video_file))
 
@@ -66,12 +68,16 @@ def record_a_video(record_time_sec):
 		if ret is True:
 			# frame = cv2.flip(frame, 0)
 			video_writer_out.write(frame)
+			# time.sleep(1)  # 1s/30fps = 0.03
+
 			if cv2.waitKey(1) & 0xFF == ord("q"):
 				break
 		else:
 			break
 	vcap.release()
 	video_writer_out.release()
+	print("Record Finished...")
+	video_duration(video_file)
 
 
 def is_damaged(image):
@@ -99,3 +105,21 @@ def required_time_is_completed(path_to_file, diff_seconds):
 			return False
 		return True
 	return False
+
+
+def video_duration(path_to_video):
+	# import module
+	import cv2
+	import datetime
+
+	# create video capture object
+	data = cv2.VideoCapture(path_to_video)
+
+	# count the number of frames
+	frames = data.get(cv2.CAP_PROP_FRAME_COUNT)
+	fps = int(data.get(cv2.CAP_PROP_FPS))
+
+	# calculate dusration of the video
+	seconds = int(frames / fps)
+	video_time = str(datetime.timedelta(seconds=seconds))
+	print("Video duration:", video_time)

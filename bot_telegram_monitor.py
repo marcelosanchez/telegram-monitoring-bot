@@ -33,7 +33,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# TOKEN=open('token',"r").read()
 TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
 img_str       = None
 video_str     = None
@@ -84,13 +83,15 @@ def evento_vid(context):
     binario = read_video()
     if binario == "":
         print("No events.")
+        # pass
     else:
         print("Have a video here!")
         if required_time_is_completed(path_video, VID_WAIT_TIME):
+            video_duration(path_video)
             print("Its time to send the video!")
             context.bot.send_video(chat_id, video=binario, supports_streaming=True)
             binario.close()
-            # os.remove(path_video)
+            os.remove(path_video)
     
 
 def shutdown():
@@ -118,7 +119,7 @@ def record(update: Update, context: CallbackContext) -> None:
         record_thread.start()
     except Exception as e:
         print('An error occurred when the video was being recorded!: ' + str(e))
-        pass
+        # pass
 
 
 def finish(update: Update, context: CallbackContext) -> None:
