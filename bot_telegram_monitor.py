@@ -110,7 +110,12 @@ def start(update: Update, context: CallbackContext) -> None:
 
 
 def capture(update: Update, context: CallbackContext) -> None:
-    take_a_picture()
+    try:
+        record_thread = threading.Thread(target=take_a_picture, args=(None, ))
+        record_thread.start()
+    except Exception as e:
+        print('An error occurred when the picture was being taken!: ' + str(e))
+        # pass
 
 
 def record(update: Update, context: CallbackContext) -> None:
