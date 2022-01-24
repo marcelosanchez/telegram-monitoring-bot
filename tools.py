@@ -40,10 +40,11 @@ def take_a_picture():
 
 def record_a_video(record_time_sec):
 	print("Recording a " + str(record_time_sec) + " seconds video..")
+	record_time_increased = record_time_sec * 2
 	# Video settings
 	fps = 30.0
-	width = 640  # 1280
-	height = 360  # 720
+	width = 1280  # 640
+	height = 720  # 360
 	video_codec = cv2.VideoWriter_fourcc(*'mp4v')
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
@@ -62,7 +63,7 @@ def record_a_video(record_time_sec):
 	)
 
 	start_time = time.time()
-	while int(time.time() - start_time) <= int(record_time_sec - 1):
+	while int(time.time() - start_time) <= int(record_time_increased - 1):
 		# print(time.time() - start_time)
 		ret, frame = vcap.read()
 		if ret is True:
