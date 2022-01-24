@@ -40,7 +40,7 @@ def take_a_picture():
 
 def record_a_video(record_time_sec):
 	print("Recording a " + str(record_time_sec) + " seconds video..")
-	record_time_increased = (record_time_sec + 4) * 2  # to get the defined time
+	record_time_increased = (record_time_sec + 7) * 2  # to get the defined time
 	# Video settings
 	fps = 30.0
 	width = 1280  # 640
