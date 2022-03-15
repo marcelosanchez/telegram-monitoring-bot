@@ -17,8 +17,8 @@ import logging
 import time
 import threading
 
-from telegram import Update, ForceReply, ChatAction
-from telegram.ext import Updater, CommandHandler, RegexHandler, MessageHandler, Filters, CallbackContext
+from telegram import *
+from telegram.ext import *
 from dotenv import load_dotenv
 
 from tools import *
@@ -42,6 +42,11 @@ IMG_WAIT_TIME = 3
 VID_WAIT_TIME = 5
 RECORD_TIME   = 10
 
+# MESSAGES
+START_MONITORING = "Start Monitoring"
+STOP_MONITORING  = "Stop Monitoring"
+CAPTURE_IMAGE    = "Capture Image"
+RECORD_VIDEO     = "Record Video"
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -113,10 +118,14 @@ def start(update: Update, context: CallbackContext) -> None:
     context.job_queue.run_repeating(evento_img, interval=IMG_WAIT_TIME, first=1, context=update.message.chat_id)
     context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
+    wellcome_msg = """
+    Hola, [%s](tg://user?id=%s)\! 🕊️ \nEstamos iniciando el monitoreo
+    """ % (user.first_name, str(user.id))
+    # Buttons
+    actions_keyboard = [[KeyboardButton(START_MONITORING), KeyboardButton(STOP_MONITORING)], [KeyboardButton(CAPTURE_IMAGE)], [KeyboardButton(RECORD_VIDEO)]]
+
     context.bot.send_chat_action(update.message.chat_id, action=ChatAction.TYPING, timeout=3)
-    update.message.reply_markdown_v2(
-        fr'Hola, {user.mention_markdown_v2()}\!',
-    )
+    context.bot.send_message(chat_id=update.message.chat_id, text=wellcome_msg, parse_mode='MarkdownV2', reply_markup=ReplyKeyboardMarkup(actions_keyboard))
 
 
 def capture(update: Update, context: CallbackContext) -> None:
@@ -175,6 +184,19 @@ def echo(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(update.message.text)
 
 
+def message_handler(update: Update, context: CallbackContext):
+    if START_MONITORING in update.message.text:
+        start(update, context)
+    elif STOP_MONITORING in update.message.text:
+        finish(update, context)
+    elif CAPTURE_IMAGE in update.message.text:
+        capture(update, context)
+    elif RECORD_VIDEO in update.message.text:
+        record(update, context)
+    else:
+        context.bot.send_message(chat_id=update.message.chat_id, text="No entiendo, mejor prueba una de las opciones del menu 👀")
+
+
 def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -185,12 +207,13 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("capture", capture))
-    dispatcher.add_handler(CommandHandler("record", record))
-    dispatcher.add_handler(CommandHandler("finish", finish))
-    dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(MessageHandler(Filters.text, message_handler))
+    # dispatcher.add_handler(CommandHandler("capture", capture))
+    # dispatcher.add_handler(CommandHandler("record", record))
+    # dispatcher.add_handler(CommandHandler("finish", finish))
+    # dispatcher.add_handler(CommandHandler("help", help_command))
 
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    # dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))  # Replica lo que recibe
 
     updater.start_polling()
 
