@@ -119,13 +119,14 @@ def start(update: Update, context: CallbackContext) -> None:
     context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
     wellcome_msg = """
-    Hola, [%s](tg://user?id=%s)\! 🕊️ \nEstamos iniciando el monitoreo
+    Hi, [%s](tg://user?id=%s)\! 🕊️ \nWe are starting monitoring
     """ % (user.first_name, str(user.id))
     # Buttons
     actions_keyboard = [[KeyboardButton(START_MONITORING), KeyboardButton(STOP_MONITORING)], [KeyboardButton(CAPTURE_IMAGE)], [KeyboardButton(RECORD_VIDEO)]]
 
     context.bot.send_chat_action(update.message.chat_id, action=ChatAction.TYPING, timeout=3)
-    context.bot.send_message(chat_id=update.message.chat_id, text=wellcome_msg, parse_mode='MarkdownV2', reply_markup=ReplyKeyboardMarkup(actions_keyboard))
+    context.bot.send_message(chat_id=update.message.chat_id, text=wellcome_msg, parse_mode='MarkdownV2')
+    update.message.reply_text(text='Select an option: 🕊️', reply_markup=ReplyKeyboardMarkup(actions_keyboard))
 
 
 def capture(update: Update, context: CallbackContext) -> None:
@@ -149,7 +150,7 @@ def record(update: Update, context: CallbackContext) -> None:
 
 
 def finish(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('El monitoreo se ha detenido!')
+    update.message.reply_text('Monitoring has stopped!')
     # context.job_queue.stop()
     os.kill(os.getpid(), signal.SIGINT)
 
@@ -194,7 +195,7 @@ def message_handler(update: Update, context: CallbackContext):
     elif RECORD_VIDEO in update.message.text:
         record(update, context)
     else:
-        context.bot.send_message(chat_id=update.message.chat_id, text="No entiendo, mejor prueba una de las opciones del menu 👀")
+        context.bot.send_message(chat_id=update.message.chat_id, text="I don't understand, better try one of the menu options 👀")
 
 
 def main() -> None:
