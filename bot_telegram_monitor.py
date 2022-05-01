@@ -40,7 +40,7 @@ path_img      = "images/event.jpg"
 path_video    = "videos/event.mp4"
 IMG_WAIT_TIME = 3
 VID_WAIT_TIME = 5
-RECORD_TIME   = 10
+RECORD_TIME   = 20
 
 # MESSAGES
 START_MONITORING = "Start Monitoring"
@@ -83,7 +83,7 @@ def evento_img(context):
 
 
 def evento_vid(context):
-    print("Video event..")
+    print("📹 Video event..")
     chat_id = context.job.context
     binario = ""
     binario = read_video()
@@ -91,19 +91,24 @@ def evento_vid(context):
         print("No events.")
         # pass
     else:
-        print("Have a video here!")
+        print("🎞️ Have a video here!")
         if required_time_is_completed(path_video, VID_WAIT_TIME):
             video_duration(path_video)
             print("Its time to send the video!")
             video_size = get_file_size_in_mb(path_video)
             print("Size: " + str(video_size))
-            if video_size >= 20:
-                # context.bot.send_document(chat_id, document=binario)
+
+            try:
+                if video_size >= 50:
+                    context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
+                    context.bot.send_message(chat_id, text="The video file is too big, I can't send it, sorry 🙁")
+                else:
+                    context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_VIDEO, timeout=RECORD_TIME)
+                    context.bot.send_video(chat_id, video=binario, supports_streaming=True, timeout=100000)
+            except TelegramError as e:
                 context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
-                context.bot.send_message(chat_id, text="The video is too long, I can't send it, sorry 🙁")
-            else:
-                context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_VIDEO, timeout=RECORD_TIME)
-                context.bot.send_video(chat_id, video=binario, supports_streaming=True)
+                context.bot.send_message(chat_id, text="🙁 Ops! Something went wrong: " + str(e))
+
             binario.close()
             os.remove(path_video)
     
