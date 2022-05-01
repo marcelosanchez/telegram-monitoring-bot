@@ -33,7 +33,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-TOKEN   = os.getenv('BOT_TELEGRAM_TOKEN')
+TOKEN         = os.getenv('BOT_TELEGRAM_TOKEN')
 img_str       = None
 video_str     = None
 path_img      = "images/event.jpg"
@@ -203,15 +203,20 @@ def main() -> None:
     # Create the Updater and pass it your bot's token.
     updater = Updater(TOKEN)
 
+    # Create bot menu button, to show avalible commands
+    bot = Bot(TOKEN)
+    commands = [BotCommand("start", "to start bot monitoring"), BotCommand("stop", "to stop bot monitoring")]
+    bot.set_my_commands(commands)
+
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("stop", finish))
     dispatcher.add_handler(MessageHandler(Filters.text, message_handler))
     # dispatcher.add_handler(CommandHandler("capture", capture))
     # dispatcher.add_handler(CommandHandler("record", record))
-    # dispatcher.add_handler(CommandHandler("finish", finish))
     # dispatcher.add_handler(CommandHandler("help", help_command))
 
     # dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))  # Replica lo que recibe
