@@ -40,7 +40,7 @@ path_img      = "images/event.jpg"
 path_video    = "videos/event.mp4"
 IMG_WAIT_TIME = 3
 VID_WAIT_TIME = 5
-RECORD_TIME   = 20
+RECORD_TIME   = 30
 
 # MESSAGES
 START_MONITORING = "Start Monitoring"
