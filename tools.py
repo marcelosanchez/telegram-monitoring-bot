@@ -55,19 +55,22 @@ def create_video_summary():
 		if not os.path.exists("summary/videos"):
 			os.makedirs("summary/videos")
 
-		# Crear el hilo para crear el video del día anterior
-		thread = threading.Thread(target=create_video, args=(yesterday,))
-		thread.start()
+		# Verificar si el archivo ya existe en el directorio de destino
+		video_path = f"summary/videos/{yesterday}.mp4"
+		if not os.path.exists(video_path):
+			# Crear el hilo para crear el video del día anterior
+			thread = threading.Thread(target=create_video, args=(yesterday,))
+			thread.start()
 
-		# Eliminar las imágenes del día anterior al día antes de ayer
-		path = f'summary/pictures/{day_before_yesterday}/*.jpg'
-		images = glob.glob(path)
+			# Eliminar las imágenes del día anterior al día antes de ayer
+			path = f'summary/pictures/{day_before_yesterday}/*.jpg'
+			images = glob.glob(path)
 
-		# Remove images only if there are images
-		if images:
-			for image in images:
-				os.remove(image)
-		print(f"♻️ Imágenes de {day_before_yesterday} eliminadas ")
+			# Remove images only if there are images
+			if images:
+				for image in images:
+					os.remove(image)
+			print(f"♻️ Imágenes de {day_before_yesterday} eliminadas ")
 
 
 def guardar_imagenes_resumen(cv2, frame):
