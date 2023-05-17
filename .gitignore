@@ -132,3 +132,4 @@ dmypy.json
 # Media
 /videos
 /images
+/summary

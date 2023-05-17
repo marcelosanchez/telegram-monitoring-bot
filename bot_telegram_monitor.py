@@ -48,6 +48,7 @@ STOP_MONITORING  = "Stop Monitoring"
 CAPTURE_IMAGE    = "Capture Image"
 RECORD_VIDEO     = "Record Video"
 
+
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def read_img():
@@ -79,7 +80,7 @@ def evento_img(context):
         context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
         context.bot.send_photo(chat_id, photo=binario)
         binario.close()
-        os.remove(path_img)
+        os.remove(path_img)  # Delete image
 
 
 def evento_vid(context):
