@@ -7,7 +7,7 @@ load_dotenv()
 URL_CAM1 = os.getenv('URL_CAM1')
 BOT_TELEGRAM_TOKEN = os.getenv('BOT_TELEGRAM_TOKEN')
 
-GMT_DELTA = int(os.getenv('GMT_DELTA'))
+GMT_DELTA = int(os.getenv('GMT_DELTA') if os.getenv('GMT_DELTA') else 0)
 
 EVENT_DETECT_POINTS = int(os.getenv('EVENT_DETECT_POINTS'))
 

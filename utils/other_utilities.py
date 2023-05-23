@@ -27,3 +27,8 @@ def get_datetime_delta(time_now):
 	# print("🕒 Time now: " + str(new_time))
 
 	return new_time
+
+
+def is_called_on_group(update):
+	# Validation to work only in groups
+	return update.message.chat.type == 'group' or update.message.chat.type == 'supergroup'

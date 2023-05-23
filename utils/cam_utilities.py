@@ -209,7 +209,7 @@ def video_duration(path_to_video):
 	# calculate dusration of the video
 	seconds = int(frames / fps)
 	video_time = str(datetime.timedelta(seconds=seconds))
-	print("Video duration:", video_time)
+	print("🕔 Video duration:", video_time)
 
 
 def get_file_size_in_mb(path_to_file):

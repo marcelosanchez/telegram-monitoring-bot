@@ -90,7 +90,7 @@ def evento_vid(context):
         print("No events.")
         # pass
     else:
-        print("🎞️ Have a video here!")
+        print("👉🏻 Have a video here!")
         if required_time_is_completed(PATH_VIDEO, VID_WAIT_TIME):
             video_duration(PATH_VIDEO)
             print("Its time to send the video!")
@@ -122,6 +122,9 @@ def shutdown():
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     context.job_queue.run_repeating(evento_img, interval=IMG_WAIT_TIME, first=1, context=update.message.chat_id)
     context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
@@ -137,6 +140,9 @@ def start(update: Update, context: CallbackContext) -> None:
 
 
 def capture(update: Update, context: CallbackContext) -> None:
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     context.bot.send_chat_action(update.message.chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
     try:
         record_thread = threading.Thread(target=take_a_picture)
@@ -147,6 +153,9 @@ def capture(update: Update, context: CallbackContext) -> None:
 
 
 def record(update: Update, context: CallbackContext) -> None:
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.RECORD_VIDEO, timeout=RECORD_TIME)
     try:
         record_thread = threading.Thread(target=record_a_video, args=(RECORD_TIME,))
@@ -157,12 +166,18 @@ def record(update: Update, context: CallbackContext) -> None:
 
 
 def finish(update: Update, context: CallbackContext) -> None:
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     update.message.reply_text('Monitoring has stopped!')
     # context.job_queue.stop()
     os.kill(os.getpid(), signal.SIGINT)
 
 
 def pause(update: Update, context: CallbackContext) -> None:
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     intervalo = int(update.message.text.replace('/pause_', ''))
     print(intervalo, type(intervalo))
     if not intervalo:
@@ -174,6 +189,9 @@ def pause(update: Update, context: CallbackContext) -> None:
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     # Preparamos el texto que queremos enviar
     context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING, timeout=3)
     bot_msg = "Comandos disponibles:\n" \
@@ -189,10 +207,16 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def echo(update: Update, context: CallbackContext) -> None:
     """Echo the user message."""
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     update.message.reply_text(update.message.text)
 
 
 def message_handler(update: Update, context: CallbackContext):
+    # Validation to work only in groups
+    if not is_called_on_group(update):
+        return
     if START_MONITORING in update.message.text:
         start(update, context)
     elif STOP_MONITORING in update.message.text:
