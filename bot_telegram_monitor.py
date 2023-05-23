@@ -101,7 +101,7 @@ def evento_vid(context):
                 if video_size >= 50:
                     context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
                     context.bot.send_message(chat_id, text="The video file is too big, I can't send it, sorry 🙁")
-                    context.bot.send_message(chat_id, text="📁 The video was saved: " + time.strftime(DATETIME_FORMAT) + ".mp4")
+                    context.bot.send_message(chat_id, text="📁 The video was saved: " + get_datetime_delta(time).strftime(DATETIME_FORMAT) + ".mp4")
                     # save PATH_VIDEO in record folder media/record/video/YYYYMMDD/YYYYMMDD_HHMMSS.mp4
                     storage_video(PATH_VIDEO)
                     return

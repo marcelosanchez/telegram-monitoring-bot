@@ -128,8 +128,7 @@ def take_a_picture():
 
 
 def record_a_video(record_time_sec):
-	print("Recording a " + str(record_time_sec) + " seconds video..")
-	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
+	print("🎬 Recording a " + str(record_time_sec) + " seconds video..")
 	cv2.waitKey(int(1000 / VIDEO_RECORD_FPS - 1))
 	vcap = cv2.VideoCapture(CAM_URL)
 	vcap.set(cv2.CAP_PROP_FPS, VIDEO_RECORD_FPS)
