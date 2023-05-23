@@ -229,3 +229,4 @@ def storage_video(event_video):
 
 	os.rename(event_video, os.path.join(today_video_path, datetime_str + ".mp4"))
 	print("Video moved to: ", today_video_path, " as ", datetime_str + ".mp4")
+	return datetime_str + ".mp4"
