@@ -1,19 +1,19 @@
-import cv2
 import numpy as np
 from collections import deque
-import os
-from tools import guardar_imagen_evento
-from dotenv import load_dotenv
 
-load_dotenv()
+from utils.cam_utilities import guardar_imagen_evento
+from constants.settings_constants import *
 
-cam_video_url = os.getenv('URL_CAM1')
-cap = cv2.VideoCapture(cam_video_url)
+
+CAM_URL             = URL_CAM1
+EVENT_DETECT_POINTS = EVENT_DETECT_POINTS
+cap = cv2.VideoCapture(CAM_URL)
+
 print("Start video capture...")
 
 sub = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
 elemento_estruturante = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-points = deque(maxlen=20)
+points = deque(maxlen=EVENT_DETECT_POINTS)
 
 while cap.isOpened():
     # ret: is a boolean variable that returns true if the frame is available
@@ -45,7 +45,7 @@ while cap.isOpened():
 
         log_msg = "Movement Detected: [" + str(len(points)) + "] points"
         print(log_msg)
-        if len(points) >= 20:  # 20
+        if len(points) >= EVENT_DETECT_POINTS:  # 20
             try:
                 import _thread
                 _thread.start_new_thread(guardar_imagen_evento, (cv2, frame))

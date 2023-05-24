@@ -81,6 +81,9 @@ target/
 profile_default/
 ipython_config.py
 
+# test files
+test_*
+
 # pyenv
 .python-version
 
@@ -134,3 +137,8 @@ dmypy.json
 /videos
 /images
 /summary
+/records
+/media
+
+.DS_Store
+.vscode

@@ -1,46 +1,45 @@
 import os
 import cv2
+from dotenv import load_dotenv
+
+load_dotenv()
 
 URL_CAM1 = os.getenv('URL_CAM1')
 BOT_TELEGRAM_TOKEN = os.getenv('BOT_TELEGRAM_TOKEN')
 
-GMT_DELTA = os.getenv('GMT_DELTA')
+GMT_DELTA = int(os.getenv('GMT_DELTA'))
 
-EVENT_DETECT_POINTS = os.getenv('EVENT_DETECT_POINTS')
+EVENT_DETECT_POINTS = int(os.getenv('EVENT_DETECT_POINTS'))
 
-SETTINGS = {
-	"VIDEO": {
-		"RECORD": {
-			"FRAME_WIDTH": os.getenv('VIDEO_RECORD_FRAME_WIDTH'),
-			"FRAME_HEIGHT": os.getenv('VIDEO_RECORD_FRAME_HEIGHT'),
-			"FPS": os.getenv('VIDEO_RECORD_FPS'),
+TIME_FORMAT_SHORT = "%Y%m%d"
+TIME_FORMAT_LONG = "%Y%m%d_%H%M%S"
 
-			"DEFAULT_RECORD_TIME": os.getenv('DEFAULT_RECORD_TIME'),
-		},
-		"SUMMARY": {
-			"FRAME_WIDTH": os.getenv('VIDEO_SUMMARY_FRAME_WIDTH'),
-			"FRAME_HEIGHT": os.getenv('VIDEO_SUMMARY_FRAME_HEIGHT'),
-			"FPS": os.getenv('VIDEO_SUMMARY_FPS'),
-
-			"PRESERVE_RECORDS_DAYS": os.getenv('PRESERVE_RECORDS_DAYS'),
-		},
-		"CODEC": cv2.VideoWriter_fourcc(*'mp4v'),
-	},
-	"PICTURE": {
-		"QUALITY": os.getenv('PICTURE_QUALITY'),
-	}
+BOT_TIMEOUT = {
+	"IMAGE": int(os.getenv('TIMEOUT_EVENT_IMAGE')),
+	"VIDEO": int(os.getenv('TIMEOUT_EVENT_VIDEO')),
 }
 
-PATHS = {
-	"IMAGES": {
-		"EVENT": os.getenv('PATH_IMAGES_EVENT'),
-		"SUMMARY": os.getenv('PATH_IMAGES_SUMMARY'),
+VIDEO = {
+	"RECORD": {
+		"FRAME_WIDTH": int(os.getenv('VIDEO_RECORD_FRAME_WIDTH')),
+		"FRAME_HEIGHT": int(os.getenv('VIDEO_RECORD_FRAME_HEIGHT')),
+		"FPS": int(os.getenv('VIDEO_RECORD_FPS')),
+
+		"DEFAULT_RECORD_TIME": int(os.getenv('DEFAULT_RECORD_TIME')),
 	},
-	"VIDEOS": {
-		"EVENT": os.getenv('PATH_VIDEOS_EVENT'),
-		"SUMMARY": os.getenv('PATH_VIDEOS_SUMMARY'),
+	"SUMMARY": {
+		"FRAME_WIDTH": int(os.getenv('VIDEO_SUMMARY_FRAME_WIDTH')),
+		"FRAME_HEIGHT": int(os.getenv('VIDEO_SUMMARY_FRAME_HEIGHT')),
+		"FPS": int(os.getenv('VIDEO_SUMMARY_FPS')),
+
+		"PRESERVE_RECORDS_DAYS": int(os.getenv('PRESERVE_RECORDS_DAYS')),
 	},
-},
+	"CODEC": cv2.VideoWriter_fourcc(*'mp4v'),
+}
+
+PICTURE = {
+	"QUALITY": int(os.getenv('PICTURE_QUALITY')),
+}
 
 
 

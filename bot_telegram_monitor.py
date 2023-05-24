@@ -11,21 +11,15 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import os
 import signal
 import logging
-import time
-import threading
 
 from telegram import *
 from telegram.ext import *
-from dotenv import load_dotenv
 
-from tools import *
+from constants.bot_msg_constants import *
+from utils.cam_utilities import *
 
-load_dotenv()
-
-cam_video_url = os.getenv('URL_CAM1')
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -33,28 +27,32 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-TOKEN         = os.getenv('BOT_TELEGRAM_TOKEN')
+TOKEN         = BOT_TELEGRAM_TOKEN
 img_str       = None
 video_str     = None
-path_img      = "images/event.jpg"
-path_video    = "videos/event.mp4"
-IMG_WAIT_TIME = 3
-VID_WAIT_TIME = 5
-RECORD_TIME   = 30
+PATH_IMAGE    = EVENT["IMAGE"]["FULL_PATH"]
+PATH_VIDEO    = EVENT["VIDEO"]["FULL_PATH"]
+RELATIVE_PATH_VIDEO = EVENT["VIDEO"]["RELATIVE_PATH"]
+IMG_WAIT_TIME = BOT_TIMEOUT["IMAGE"]
+VID_WAIT_TIME = BOT_TIMEOUT["VIDEO"]
+RECORD_TIME   = VIDEO["RECORD"]["DEFAULT_RECORD_TIME"]
 
 # MESSAGES
-START_MONITORING = "Start Monitoring"
-STOP_MONITORING  = "Stop Monitoring"
-CAPTURE_IMAGE    = "Capture Image"
-RECORD_VIDEO     = "Record Video"
+START_MONITORING = INLINE_BUTTONS["START"]
+STOP_MONITORING  = INLINE_BUTTONS["STOP"]
+CAPTURE_IMAGE    = INLINE_BUTTONS["CAPTURE"]
+RECORD_VIDEO     = INLINE_BUTTONS["RECORD"]
+
+DATE_FORMAT     = TIME_FORMAT_SHORT
+DATETIME_FORMAT = TIME_FORMAT_LONG
 
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def read_img():
     # ret, frame = cap.read()
-    if os.path.isfile(path_img):
-        img_str = open(path_img, "rb")
+    if os.path.isfile(PATH_IMAGE):
+        img_str = open(PATH_IMAGE, "rb")
     else:
         return ""
     return img_str
@@ -62,8 +60,8 @@ def read_img():
 
 def read_video():
     # ret, frame = cap.read()
-    if os.path.isfile(path_video):
-        video_str = open(path_video, "rb")
+    if os.path.isfile(PATH_VIDEO):
+        video_str = open(PATH_VIDEO, "rb")
     else:
         return ""
     return video_str
@@ -76,11 +74,11 @@ def evento_img(context):
     if binario == "":
         print("No events.")
     else:
-        # if required_time_is_completed(path_video, IMG_WAIT_TIME):
+        # if required_time_is_completed(PATH_VIDEO, IMG_WAIT_TIME):
         context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
         context.bot.send_photo(chat_id, photo=binario)
         binario.close()
-        os.remove(path_img)  # Delete image
+        os.remove(PATH_IMAGE)  # Delete image
 
 
 def evento_vid(context):
@@ -93,26 +91,29 @@ def evento_vid(context):
         # pass
     else:
         print("🎞️ Have a video here!")
-        if required_time_is_completed(path_video, VID_WAIT_TIME):
-            video_duration(path_video)
+        if required_time_is_completed(PATH_VIDEO, VID_WAIT_TIME):
+            video_duration(PATH_VIDEO)
             print("Its time to send the video!")
-            video_size = get_file_size_in_mb(path_video)
+            video_size = get_file_size_in_mb(PATH_VIDEO)
             print("Size: " + str(video_size))
 
             try:
                 if video_size >= 50:
                     context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
                     context.bot.send_message(chat_id, text="The video file is too big, I can't send it, sorry 🙁")
+                    context.bot.send_message(chat_id, text="📁 The video was saved: " + time.strftime(DATETIME_FORMAT) + ".mp4")
+                    # save PATH_VIDEO in record folder media/record/video/YYYYMMDD/YYYYMMDD_HHMMSS.mp4
+                    storage_video(PATH_VIDEO)
+                    return
                 else:
                     context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_VIDEO, timeout=RECORD_TIME)
                     context.bot.send_video(chat_id, video=binario, supports_streaming=True, timeout=100000)
+                    os.remove(PATH_VIDEO)  # Delete video
             except TelegramError as e:
                 context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
                 context.bot.send_message(chat_id, text="🙁 Ops! Something went wrong: " + str(e))
+                os.remove(PATH_VIDEO)  # Delete video
 
-            binario.close()
-            os.remove(path_video)
-    
 
 def shutdown():
     Updater.stop()
