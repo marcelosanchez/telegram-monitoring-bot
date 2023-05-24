@@ -90,10 +90,11 @@ def create_video_summary():
 
 
 def guardar_imagenes_resumen(cv2, frame):
+	now = get_datetime_delta(datetime.now())
 	# get current datetime as timestamp, and save image in images folder, the folder must be created before and has the date as name with this format YYYYMMDD
-	if not os.path.exists(SUMMARY_IMAGE_FILE_PATH + "/" + time.strftime(DATE_FORMAT)):
-		os.makedirs(SUMMARY_IMAGE_FILE_PATH + "/" + time.strftime(DATE_FORMAT))
-	cv2.imwrite(SUMMARY_IMAGE_FILE_PATH + "/" + time.strftime(DATE_FORMAT) + "/" + time.strftime(DATETIME_FORMAT) + ".jpg", frame)
+	if not os.path.exists(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT)):
+		os.makedirs(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT))
+	cv2.imwrite(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT) + "/" + now.strftime(DATETIME_FORMAT) + ".jpg", frame)
 	create_video_summary()
 	# print("🖼 Imaged saved: ", "summary/" + time.strftime(DATE_FORMAT) + "/" + time.strftime(DATETIME_FORMAT) + ".jpg")
 
