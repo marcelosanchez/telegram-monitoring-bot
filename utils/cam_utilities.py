@@ -6,22 +6,24 @@ import time
 from datetime import datetime
 
 import numpy as np
-from dotenv import load_dotenv
 
-load_dotenv()
+from constants.settings_constants import URL_CAM1, VIDEO
 
-cam_video_url = os.getenv('URL_CAM1')
 
-# video settings
-VIDEO_FRAME_WIDTH = 1280
-VIDEO_FRAME_HEIGHT = 720
-VIDEO_FPS = 30
-VIDEO_CODEC = cv2.VideoWriter_fourcc(*'mp4v')
+# global variables
+CAM_URL = URL_CAM1
 
-# summary settings
-SUMMARY_FRAME_WIDTH = 1920
-SUMMARY_FRAME_HEIGHT = 1080
-SUMMARY_VIDEO_FPS = 5
+# video record
+VIDEO_RECORD_FRAME_WIDTH  = VIDEO["RECORD"]["FRAME_WIDTH"]
+VIDEO_RECORD_FRAME_HEIGHT = VIDEO["RECORD"]["FRAME_HEIGHT"]
+VIDEO_RECORD_FPS          = VIDEO["RECORD"]["FPS"]
+
+# video summary
+SUMMARY_FRAME_WIDTH = VIDEO["SUMMARY"]["FRAME_WIDTH"]
+SUMMARY_FRAME_HEIGHT = VIDEO["SUMMARY"]["FRAME_HEIGHT"]
+SUMMARY_VIDEO_FPS = VIDEO["SUMMARY"]["FPS"]
+
+VIDEO_CODEC = VIDEO["CODEC"]
 
 
 def create_video(yesterday):
@@ -90,7 +92,7 @@ def guardar_imagen_evento(cv2, frame):
 
 
 def take_a_picture():
-	icap = cv2.VideoCapture(cam_video_url)  # 1
+	icap = cv2.VideoCapture(CAM_URL)  # 1
 	i = 0
 	while icap.isOpened():
 		ret, frame = icap.read()
@@ -116,18 +118,18 @@ def record_a_video(record_time_sec):
 	record_time_increased = (record_time_sec + 5) * 2  # to get the defined time
 	# name = time.strftime("VID_%Y%m%d_%H%M%S", time.localtime())
 	video_file = "videos/event.mp4"
-	cv2.waitKey(int(1000 / fps - 1))
-	vcap = cv2.VideoCapture(cam_video_url)
-	vcap.set(cv2.CAP_PROP_FPS, VIDEO_FPS)
-	vcap.set(cv2.CAP_PROP_FRAME_WIDTH, VIDEO_FRAME_WIDTH)
-	vcap.set(cv2.CAP_PROP_FRAME_HEIGHT, VIDEO_FRAME_HEIGHT)
+	cv2.waitKey(int(1000 / VIDEO_RECORD_FPS - 1))
+	vcap = cv2.VideoCapture(CAM_URL)
+	vcap.set(cv2.CAP_PROP_FPS, VIDEO_RECORD_FPS)
+	vcap.set(cv2.CAP_PROP_FRAME_WIDTH, VIDEO_RECORD_FRAME_WIDTH)
+	vcap.set(cv2.CAP_PROP_FRAME_HEIGHT, VIDEO_RECORD_FRAME_HEIGHT)
 	vcap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 	print("Captured video saved on: {}".format(video_file))
 
 	# Create a video write before entering the loop
 	video_writer_out = cv2.VideoWriter(
-		video_file, VIDEO_CODEC, VIDEO_FPS, (int(vcap.get(3)), int(vcap.get(4)))
+		video_file, VIDEO_CODEC, VIDEO_RECORD_FPS, (int(vcap.get(3)), int(vcap.get(4)))
 	)
 
 	start_time = time.time()
