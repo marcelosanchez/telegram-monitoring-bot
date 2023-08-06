@@ -38,10 +38,10 @@ def get_today():
 	return day
 
 
-def get_past_day(offset_days=0):
+def get_past_day(offset_days=0, format_option="SHORT"):
 	today = get_datetime_delta(datetime.now())
 	specific_date = today - timedelta(days=offset_days)
-	return specific_date.strftime(DATE_FORMAT)
+	return specific_date.strftime(TIME_FORMATS[format_option])
 
 
 def get_now_datetime_str(format_option):

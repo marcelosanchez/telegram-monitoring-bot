@@ -32,6 +32,7 @@ def send_summary_video():
 
 		# Verificar si el archivo ya existe en el directorio de destino
 		yesterday = get_past_day(1)
+		yesterday_str = get_past_day(1, "PRETTY_SHORT")
 
 		# Validar directorio para los videos
 		if not os.path.exists(SUMMARY_VIDEO_FILE_PATH):
@@ -43,7 +44,7 @@ def send_summary_video():
 
 			if summary_video_path is not None:  # video created
 				# Send video to Telegram
-				caption = "#summary\n" + "`" + get_now_datetime_str("PRETTY_SHORT") + "`"
+				caption = "#summary\n" + "`" + yesterday_str + "`"
 				send_to_telegram(summary_video_path, MEDIA_VIDEO, caption)
 
 				# Then delete the video
