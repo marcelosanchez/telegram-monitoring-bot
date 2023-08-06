@@ -1,13 +1,16 @@
 import numpy as np
 from collections import deque
 
-from utils.cam_utilities import guardar_imagen_evento
+from constants.paths_constants import EVENT
+from utils.cam_utilities import save_picture_captured
 from constants.settings_constants import *
 
 
 CAM_URL             = URL_CAM1
 EVENT_DETECT_POINTS = EVENT_DETECT_POINTS
 cap = cv2.VideoCapture(CAM_URL)
+EVENT_IMAGE_FILE_PATH = EVENT["IMAGE"]["RELATIVE_PATH"]
+EVENT_IMAGE_FILE_NAME = EVENT["IMAGE"]["FILE_NAME"]
 
 print("Start video capture...")
 
@@ -48,7 +51,7 @@ while cap.isOpened():
         if len(points) >= EVENT_DETECT_POINTS:  # 20
             try:
                 import _thread
-                _thread.start_new_thread(guardar_imagen_evento, (cv2, frame))
+                _thread.start_new_thread(save_picture_captured, (EVENT_IMAGE_FILE_PATH, EVENT_IMAGE_FILE_NAME, frame))
             except Exception as e:
                 print('error :' + str(e))
                 pass

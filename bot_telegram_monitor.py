@@ -13,13 +13,15 @@ bot.
 
 import signal
 import logging
+import threading
 
 from telegram import *
 from telegram.ext import *
 
 from constants.bot_msg_constants import *
 from utils.cam_utilities import *
-
+from utils.summary_utilities import evento_summary
+from utils.telegram_send_file import send_to_telegram
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -33,8 +35,9 @@ video_str     = None
 PATH_IMAGE    = EVENT["IMAGE"]["FULL_PATH"]
 PATH_VIDEO    = EVENT["VIDEO"]["FULL_PATH"]
 RELATIVE_PATH_VIDEO = EVENT["VIDEO"]["RELATIVE_PATH"]
-IMG_WAIT_TIME = BOT_TIMEOUT["IMAGE"]
-VID_WAIT_TIME = BOT_TIMEOUT["VIDEO"]
+IMG_WAIT_TIME    = BOT_TIMEOUT["IMAGE"]
+VID_WAIT_TIME    = BOT_TIMEOUT["VIDEO"]
+VID_SUMMARY_TIME = BOT_TIMEOUT["SUMMARY"]
 RECORD_TIME   = VIDEO["RECORD"]["DEFAULT_RECORD_TIME"]
 
 # MESSAGES
@@ -69,28 +72,25 @@ def read_video():
 
 def evento_img(context):
     chat_id = context.job.context
-    binario = ""
     binario = read_img()
-    if binario == "":
-        print("No events.")
-    else:
-        # if required_time_is_completed(PATH_VIDEO, IMG_WAIT_TIME):
+    if binario != "":
+        print("👉🏻 Have a IMG here!")
         context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_PHOTO, timeout=IMG_WAIT_TIME)
         context.bot.send_photo(chat_id, photo=binario)
+
+        # caption_str = ""  # "`" + get_now_datetime_str() + "`"
+        # send_to_telegram(PATH_IMAGE, MEDIA_PHOTO, caption_str)
+
         binario.close()
         os.remove(PATH_IMAGE)  # Delete image
 
 
 def evento_vid(context):
-    print("📹 Video event..")
     chat_id = context.job.context
-    binario = ""
     binario = read_video()
-    if binario == "":
-        print("No events.")
-        # pass
-    else:
-        print("👉🏻 Have a video here!")
+    if binario != "":
+        print("👉🏻 Have a VID here!")
+
         if required_time_is_completed(PATH_VIDEO, VID_WAIT_TIME):
             video_duration(PATH_VIDEO)
             print("Its time to send the video!")
@@ -98,16 +98,11 @@ def evento_vid(context):
             print("Size: " + str(video_size))
 
             try:
-                if video_size >= 5:
-                    context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
-                    context.bot.send_message(chat_id, text="The video file is too big, I can't send it, sorry 🙁")
-                    video_name = storage_video(PATH_VIDEO)
-                    context.bot.send_message(chat_id, text="📁 The video was saved as: " + video_name)
-                    return
-                else:
-                    context.bot.send_chat_action(chat_id, action=ChatAction.UPLOAD_VIDEO, timeout=RECORD_TIME)
-                    context.bot.send_video(chat_id, video=binario, supports_streaming=True, timeout=100000)
-                    os.remove(PATH_VIDEO)  # Delete video
+                caption_str = "#video\n`" + get_now_datetime_str("LONG") + "`"
+                context.bot.send_chat_action(chat_id, action=ChatAction.RECORD_VIDEO)
+                send_to_telegram(PATH_VIDEO, MEDIA_VIDEO, caption_str)
+                os.remove(PATH_VIDEO)  # Delete video
+
             except TelegramError as e:
                 context.bot.send_chat_action(chat_id, action=ChatAction.TYPING, timeout=RECORD_TIME)
                 context.bot.send_message(chat_id, text="🙁 Ops! Something went wrong: " + str(e))
@@ -119,6 +114,10 @@ def shutdown():
     Updater.is_idle = False
 
 
+def evento_sum(context):
+    evento_summary(context.job.context)
+
+
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     # Validation to work only in groups
@@ -126,6 +125,7 @@ def start(update: Update, context: CallbackContext) -> None:
         return
     context.job_queue.run_repeating(evento_img, interval=IMG_WAIT_TIME, first=1, context=update.message.chat_id)
     context.job_queue.run_repeating(evento_vid, interval=VID_WAIT_TIME, first=1, context=update.message.chat_id)
+    context.job_queue.run_repeating(evento_sum, interval=VID_SUMMARY_TIME, first=1, context=update.message.chat_id)
     user = update.effective_user
     wellcome_msg = """
     Hi, [%s](tg://user?id=%s)\! 🕊️ \nWe are starting monitoring

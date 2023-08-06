@@ -29,4 +29,10 @@ SUMMARY = {
 		"PATH": os.getenv('SUMMARY_VIDEO_PATH'),
 		"FULL_PATH": os.path.join(PROJECT_ROOT_PATH, os.getenv('SUMMARY_VIDEO_PATH')),
 	},
+	"LOG": {
+		"PATH": os.getenv('SUMMARY_LOG_PATH'),
+		"FILE_NAME": os.getenv('SUMMARY_LOG_FILENAME'),
+		"RELATIVE_PATH": os.path.join(PROJECT_ROOT_PATH, os.getenv('SUMMARY_LOG_PATH')),
+		"FULL_PATH": os.path.join(PROJECT_ROOT_PATH, os.getenv('SUMMARY_LOG_PATH'), os.getenv('SUMMARY_LOG_FILENAME')),
+	},
 }

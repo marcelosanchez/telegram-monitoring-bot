@@ -1,109 +1,32 @@
-import glob
-import threading
-import time
-from datetime import datetime
-
 import numpy as np
 
+from constants.paths_constants import SUMMARY, EVENT
 from constants.settings_constants import *
-from constants.paths_constants import *
 from utils.other_utilities import *
 
 
 # global variables
 CAM_URL = URL_CAM1
 
-DATE_FORMAT = TIME_FORMAT_SHORT
-DATETIME_FORMAT = TIME_FORMAT_LONG
+DATE_FORMAT     = TIME_FORMATS["SHORT"]
+DATETIME_FORMAT = TIME_FORMATS["LONG"]
 
 # video record
 VIDEO_RECORD_FRAME_WIDTH  = VIDEO["RECORD"]["FRAME_WIDTH"]
 VIDEO_RECORD_FRAME_HEIGHT = VIDEO["RECORD"]["FRAME_HEIGHT"]
 VIDEO_RECORD_FPS          = VIDEO["RECORD"]["FPS"]
 
-# video summary
-SUMMARY_FRAME_WIDTH  = VIDEO["SUMMARY"]["FRAME_WIDTH"]
-SUMMARY_FRAME_HEIGHT = VIDEO["SUMMARY"]["FRAME_HEIGHT"]
-SUMMARY_VIDEO_FPS    = VIDEO["SUMMARY"]["FPS"]
-
 VIDEO_CODEC = VIDEO["CODEC"]
 
-EVENT_IMAGE_FILE_PATH = EVENT["IMAGE"]["FULL_PATH"]
+EVENT_IMAGE_FILE_PATH = EVENT["IMAGE"]["RELATIVE_PATH"]
+EVENT_IMAGE_FILE_NAME = EVENT["IMAGE"]["FILE_NAME"]
 EVENT_VIDEO_FILE_PATH = EVENT["VIDEO"]["FULL_PATH"]
 EVENT_VIDEO_RELATIVE_PATH = EVENT["VIDEO"]["RELATIVE_PATH"]
 
 SUMMARY_IMAGE_FILE_PATH = SUMMARY["IMAGE"]["FULL_PATH"]
 SUMMARY_VIDEO_FILE_PATH = SUMMARY["VIDEO"]["FULL_PATH"]
 
-
-def create_video(yesterday):
-	# Directorio de ayer
-	path = f'{SUMMARY_IMAGE_FILE_PATH}/{yesterday}/*.jpg'
-	# path = f'summary/pictures/{yesterday}/*.jpg'
-	images = sorted(glob.glob(path))
-	# Verificar si existen imágenes del día anterior
-	if images:
-		# Crear el video del día anterior
-		video_name = f'{SUMMARY_VIDEO_FILE_PATH}/{yesterday}.mp4'
-		# video_name = f'summary/videos/{yesterday}.mp4'
-		video = cv2.VideoWriter(video_name, VIDEO_CODEC, SUMMARY_VIDEO_FPS, (SUMMARY_FRAME_WIDTH, SUMMARY_FRAME_HEIGHT))
-		for image in images:
-			video.write(cv2.imread(image))
-		cv2.destroyAllWindows()
-		video.release()
-		print(f"🎞 Video {video_name} creado")
-
-
-def create_video_summary():
-	today = get_datetime_delta(datetime.now())
-	today = today.strftime(DATE_FORMAT)
-
-	yesterday = (get_time_delta_seconds(time.time()) - 86400)
-	yesterday = time.strftime(DATE_FORMAT, time.localtime(yesterday))
-
-	# Verificar si hay un cambio de fecha
-	if today != yesterday:
-		day_before_yesterday = (get_time_delta_seconds(time.time()) - 172800)
-		day_before_yesterday = time.strftime(DATE_FORMAT, time.localtime(day_before_yesterday))
-
-		# Validar directorio para los videos
-		if not os.path.exists(SUMMARY_VIDEO_FILE_PATH):
-			os.makedirs(SUMMARY_VIDEO_FILE_PATH)
-
-		# Verificar si el archivo ya existe en el directorio de destino
-		video_path = f"{SUMMARY_VIDEO_FILE_PATH}/{yesterday}.mp4"
-		if not os.path.exists(video_path):
-			# Crear el hilo para crear el video del día anterior
-			thread = threading.Thread(target=create_video, args=(yesterday,))
-			thread.start()
-
-			# Eliminar las imágenes del día anterior al día antes de ayer
-			path = f'{SUMMARY_IMAGE_FILE_PATH}/{day_before_yesterday}/*.jpg'
-			# path = f'summary/pictures/{day_before_yesterday}/*.jpg'
-			images = glob.glob(path)
-
-			# Remove images only if there are images
-			if images:
-				for image in images:
-					os.remove(image)
-			print(f"♻️ Imágenes de {day_before_yesterday} eliminadas ")
-
-
-def guardar_imagenes_resumen(cv2, frame):
-	now = get_datetime_delta(datetime.now())
-	# get current datetime as timestamp, and save image in images folder, the folder must be created before and has the date as name with this format YYYYMMDD
-	if not os.path.exists(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT)):
-		os.makedirs(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT))
-	cv2.imwrite(SUMMARY_IMAGE_FILE_PATH + "/" + now.strftime(DATE_FORMAT) + "/" + now.strftime(DATETIME_FORMAT) + ".jpg", frame)
-	create_video_summary()
-	# print("🖼 Imaged saved: ", "summary/" + time.strftime(DATE_FORMAT) + "/" + time.strftime(DATETIME_FORMAT) + ".jpg")
-
-
-def guardar_imagen_evento(cv2, frame):
-	if not os.path.isfile(EVENT_IMAGE_FILE_PATH):
-		#     # cv2.imshow("event", frame)
-		guardar_imagenes_resumen(cv2, frame)
-		cv2.imwrite(EVENT_IMAGE_FILE_PATH, frame)
+PATH_LAST_SUMMARY_DATE = SUMMARY["LOG"]["FULL_PATH"]
 
 
 def take_a_picture():
@@ -118,14 +41,30 @@ def take_a_picture():
 			break
 
 		# Save Frame by Frame into disk using imwrite method
-		guardar_imagenes_resumen(cv2, frame)
-		cv2.imwrite(EVENT_IMAGE_FILE_PATH, frame)
+		save_event_captured(frame)
 		i += 1
 
 		if i >= 1:
 			break
 
 	icap.release()
+
+
+def save_event_captured(frame):
+	now = get_datetime_delta(datetime.now())
+
+	summary_image_filename = now.strftime(DATETIME_FORMAT) + ".jpg"
+	summary_image_path = os.path.join(SUMMARY_IMAGE_FILE_PATH, now.strftime(DATE_FORMAT))
+
+	save_picture_captured(summary_image_path, summary_image_filename, frame)  # summary/*.jpg
+	save_picture_captured(EVENT_IMAGE_FILE_PATH, EVENT_IMAGE_FILE_NAME, frame)  # event.jpg
+
+
+def save_picture_captured(path, filename, frame):
+	if not os.path.exists(path):
+		os.makedirs(path)
+	picture_path = os.path.join(path, filename)
+	cv2.imwrite(picture_path, frame)
 
 
 def record_a_video(record_time_sec):
@@ -191,8 +130,6 @@ def required_time_is_completed(path_to_file, diff_seconds):
 
 
 def video_duration(path_to_video):
-	# import module
-	import cv2
 	import datetime
 
 	# create video capture object
