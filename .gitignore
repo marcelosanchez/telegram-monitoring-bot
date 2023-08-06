@@ -134,11 +134,7 @@ dmypy.json
 .pyre/
 
 # Media
-/videos
-/images
-/summary
-/records
-/media
+media/
 
 .DS_Store
 .vscode
