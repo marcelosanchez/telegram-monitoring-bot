@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 
 from constants.settings_constants import GMT_DELTA, TIME_FORMATS
 
-DATE_FORMAT = TIME_FORMATS["SHORT"]
-
 
 def get_time_delta_seconds(time_now):
 	if isinstance(time_now, float):
@@ -32,9 +30,9 @@ def get_datetime_delta(time_now):
 	return new_time
 
 
-def get_today():
+def get_today(format_option="SHORT"):
 	day = get_datetime_delta(datetime.now())
-	day = day.strftime(DATE_FORMAT)
+	day = day.strftime(TIME_FORMATS[format_option])
 	return day
 
 

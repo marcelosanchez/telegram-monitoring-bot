@@ -38,7 +38,8 @@ RELATIVE_PATH_VIDEO = EVENT["VIDEO"]["RELATIVE_PATH"]
 IMG_WAIT_TIME    = BOT_TIMEOUT["IMAGE"]
 VID_WAIT_TIME    = BOT_TIMEOUT["VIDEO"]
 VID_SUMMARY_TIME = BOT_TIMEOUT["SUMMARY"]
-RECORD_TIME   = VIDEO["RECORD"]["DEFAULT_RECORD_TIME"]
+IMG_TIMEOUT      = BOT_WAIT_TIMEOUT["IMAGE"]
+RECORD_TIME      = VIDEO["RECORD"]["DEFAULT_RECORD_TIME"]
 
 # MESSAGES
 START_MONITORING = INLINE_BUTTONS["START"]
@@ -81,6 +82,9 @@ def evento_img(context):
         # caption_str = ""  # "`" + get_now_datetime_str() + "`"
         # send_to_telegram(PATH_IMAGE, MEDIA_PHOTO, caption_str)
 
+        # Wait for a specified time before sending the next image
+        time.sleep(IMG_TIMEOUT)
+
         binario.close()
         os.remove(PATH_IMAGE)  # Delete image
 
@@ -100,7 +104,14 @@ def evento_vid(context):
             try:
                 caption_str = "#video\n`" + get_now_datetime_str("LONG") + "`"
                 context.bot.send_chat_action(chat_id, action=ChatAction.RECORD_VIDEO)
-                send_to_telegram(PATH_VIDEO, MEDIA_VIDEO, caption_str)
+
+                # thread to send video
+                thread = threading.Thread(target=send_to_telegram, args=(PATH_VIDEO, MEDIA_VIDEO, caption_str))
+                thread.start()
+
+                # wait thread finish
+                thread.join()
+
                 os.remove(PATH_VIDEO)  # Delete video
 
             except TelegramError as e:

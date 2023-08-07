@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from collections import deque
 
 from constants.paths_constants import EVENT
@@ -11,6 +12,8 @@ EVENT_DETECT_POINTS = EVENT_DETECT_POINTS
 cap = cv2.VideoCapture(CAM_URL)
 EVENT_IMAGE_FILE_PATH = EVENT["IMAGE"]["RELATIVE_PATH"]
 EVENT_IMAGE_FILE_NAME = EVENT["IMAGE"]["FILE_NAME"]
+
+IMG_WAIT_TIME = BOT_WAIT_TIMEOUT["IMAGE"]
 
 print("Start video capture...")
 
@@ -52,6 +55,7 @@ while cap.isOpened():
             try:
                 import _thread
                 _thread.start_new_thread(save_picture_captured, (EVENT_IMAGE_FILE_PATH, EVENT_IMAGE_FILE_NAME, frame))
+                time.sleep(IMG_WAIT_TIME)
             except Exception as e:
                 print('error :' + str(e))
                 pass

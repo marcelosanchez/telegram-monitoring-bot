@@ -33,6 +33,10 @@ BOT_TIMEOUT = {
 	"SUMMARY": int(os.getenv('TIMEOUT_SUMMARY_EVENT')),
 }
 
+BOT_WAIT_TIMEOUT = {
+	"IMAGE": int(os.getenv('IMG_WAIT_TIME'))
+}
+
 VIDEO = {
 	"RECORD": {
 		"FRAME_WIDTH": int(os.getenv('VIDEO_RECORD_FRAME_WIDTH')),
@@ -40,6 +44,7 @@ VIDEO = {
 		"FPS": int(os.getenv('VIDEO_RECORD_FPS')),
 
 		"DEFAULT_RECORD_TIME": int(os.getenv('DEFAULT_RECORD_TIME')),
+		"EVENT_RECORD_TIME": int(os.getenv('EVENT_RECORD_TIME')),
 	},
 	"SUMMARY": {
 		"FRAME_WIDTH": int(os.getenv('VIDEO_SUMMARY_FRAME_WIDTH')),
